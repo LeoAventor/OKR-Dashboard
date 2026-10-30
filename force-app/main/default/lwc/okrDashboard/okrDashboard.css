@@ -1,0 +1,7 @@
+.kr-card {
+    background-color: #ffffff;
+    border: 1px solid #dddbda;
+    border-radius: 4px;
+    box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.15); 
+    min-height: 160px; 
+}

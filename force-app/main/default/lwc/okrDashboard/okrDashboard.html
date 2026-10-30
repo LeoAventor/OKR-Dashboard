@@ -1,0 +1,171 @@
+<template>
+    <lightning-card title={labels.OKR_Dashboard_Title} icon-name="standard:goals">
+        
+        <!-- top header: User and Year Selectors -->
+        <div class="slds-grid slds-grid_align-spread slds-p-around_medium slds-border_bottom" style="background-color: white;">
+            
+            <!-- Left Side: Read-only Text -->
+            <div class="slds-col slds-align-middle">
+                <div class="slds-text-body_regular">User: <strong>{selectedUserName}</strong></div>
+                <div class="slds-text-body_regular">Year: <strong>{selectedYear}</strong></div>
+            </div>
+
+            <!-- Right Side: Inputs -->
+            <div class="slds-col">
+                <div class="slds-grid slds-gutters">
+                    <div class="slds-col">
+                        <lightning-combobox
+                            name="year"
+                            label="Change year"
+                            value={selectedYear}
+                            options={yearOptions}
+                            onchange={handleYearChange}
+                        ></lightning-combobox>
+                    </div>
+                    <div class="slds-col" style="width: 250px;">
+                        <!-- Native Salesforce Lookup Field -->
+                        <lightning-record-picker
+                            label="Select a user"
+                            object-api-name="User"
+                            value={selectedUserId}
+                            onchange={handleUserChange}
+                        ></lightning-record-picker>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!--Objectives and Key Results placement -->
+        <div class="slds-m-top_medium" style="background-color: white; padding-bottom: 20px;">
+            <template if:true={groupedObjectives}>
+                <template for:each={groupedObjectives} for:item="obj">
+                    
+                    <!-- Objective -->
+                    <div key={obj.Id} class="slds-grid slds-border_bottom slds-p-vertical_large slds-p-horizontal_medium drop-zone" 
+                         draggable="true" data-id={obj.Id} data-type="objective" 
+                         ondragstart={handleDragStart} ondragover={handleDragOver} ondragenter={handleDragEnter} ondragleave={handleDragLeave} ondrop={handleDrop}>
+                         
+                        
+                        <!-- Left side: Objective name -->
+                        <div class="slds-col slds-size_2-of-12 slds-p-right_medium">
+                            <template if:true={isEditMode}>
+                                <input type="checkbox" data-id={obj.Id} data-type="objective" onchange={handleCheckboxChange} class="slds-m-right_small" />
+                            </template>
+                            <h2 class="slds-text-heading_medium slds-text-title_bold" style="font-size: 1.25rem;">{obj.Name}</h2>
+                        </div>
+
+                        <!-- Right side: Key Results card -->
+                        <div class="slds-col slds-size_10-of-12">
+                            <div class="slds-grid slds-wrap slds-gutters">
+                                <template for:each={obj.KeyResults} for:item="kr">
+                                    
+                                    <!-- Key Result Wrapper (Draggable) -->
+                                <div key={kr.Id} class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-large-size_1-of-3 slds-m-bottom_medium drop-zone"
+                                     draggable="true" data-id={kr.Id} data-obj-id={obj.Id} data-type="keyresult"
+                                     ondragstart={handleDragStart} ondragover={handleDragOver} ondragenter={handleDragEnter} ondragleave={handleDragLeave} ondrop={handleDrop}>
+                                    
+                                    <!-- Key Result card -->
+                                    <div class="kr-card slds-box slds-theme_default" style="cursor: grab;">
+                                            
+                                            <!-- Card header -->
+                                            <div class="slds-grid slds-grid_align-spread slds-m-bottom_medium">
+                                                <div class="slds-text-heading_small slds-text-title_bold">
+                                                    <template if:true={isEditMode}>
+                                                        <input type="checkbox" data-id={kr.Id} data-type="keyresult" onchange={handleCheckboxChange} class="slds-m-right_small" />
+                                                    </template>
+                                                    {kr.Name}
+                                                </div>
+                                                <div class="slds-text-body_small slds-text-title_bold" style={kr.StatusStyle}>
+                                                <template if:true={kr.ShowStatus}>{kr.Status}</template>
+                                                </div>
+                                            </div>
+                                            
+                                            <hr style="border: none; border-top: 1px solid #dddbda; margin: 12px 0;" />
+
+                                            <!-- Targets (text format) -->
+                                            <div>
+                                                <template for:each={kr.Targets} for:item="target">
+                                                    <div key={target.Id} class="slds-m-bottom_x-small slds-text-body_regular">
+                                                        <strong>{target.Target_Object__c}:</strong> {target.Completed__c} / {target.Target_Number__c}
+                                                    </div>
+                                                </template>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </template>
+            </template>
+        </div>
+
+        <!-- edit actions for dashboard -->
+        <div class="slds-p-bottom_medium slds-text-align_center slds-m-top_medium">
+            <lightning-button label={editButtonLabel} onclick={toggleEditMode} class="slds-m-right_small"></lightning-button>
+            <template if:true={isEditMode}>
+                <lightning-button label="Delete Selected" variant="destructive" onclick={handleDeleteSelected}></lightning-button>
+            </template>
+        </div>
+
+        <!-- creation forms -->
+        <div class="slds-grid slds-gutters slds-p-around_medium slds-border_top">
+            
+            <!-- Form 1: Create Objective -->
+            <div class="slds-col slds-size_1-of-3">
+                <div class="slds-box" style="background-color: #f3f3f3;">
+                    <h2 class="slds-text-heading_small slds-m-bottom_small"><strong>{labels.New_Objective}</strong></h2>
+                    <lightning-input class="obj-name" label={labels.Lbl_Objective_Name} required></lightning-input>
+                    <lightning-input class="obj-year" label="Year (e.g. 2024)" required></lightning-input>
+                    <lightning-button label={labels.Btn_Save_Objective} variant="brand" class="slds-m-top_medium" onclick={handleCreateObjective}></lightning-button>
+                </div>
+            </div>
+
+            <!-- Form 2: Create Key Result -->
+            <div class="slds-col slds-size_1-of-3">
+                <div class="slds-box" style="background-color: #f3f3f3;">
+                    <h2 class="slds-text-heading_small slds-m-bottom_small"><strong>{labels.New_Key_Result}</strong></h2>
+                    <lightning-combobox class="kr-objective" label="Select Parent Objective" options={objectiveOptions} required></lightning-combobox>
+                    <lightning-input class="kr-name" label="Key Result Name" required></lightning-input>
+                    <lightning-button label="Save Key Result" variant="brand" class="slds-m-top_medium" onclick={handleCreateKeyResult}></lightning-button>
+                </div>
+            </div>
+
+            <!-- Form 3: Create Target -->
+            <div class="slds-col slds-size_1-of-3">
+                <div class="slds-box" style="background-color: #f3f3f3;">
+                    <h2 class="slds-text-heading_small slds-m-bottom_small"><strong>{labels.New_Target}</strong></h2>
+                    
+                    <div class="slds-form-element slds-m-bottom_small">
+                        <label class="slds-form-element__label" for="tgt-keyresult">
+                            <abbr class="slds-required" title="required">*</abbr>Select Parent Key Result
+                        </label>
+                        <div class="slds-form-element__control">
+                            <div class="slds-select_container">
+                                <select class="slds-select tgt-keyresult" id="tgt-keyresult" required>
+                                    <option value="" disabled selected hidden>Select an Option</option>
+                                    
+                                    <!-- Iterate over grouped options -->
+                                    <template for:each={groupedKeyResultOptions} for:item="group">
+                                        <optgroup key={group.objectiveId} label={group.objectiveName}>
+                                            <template for:each={group.keyResults} for:item="kr">
+                                                <option key={kr.value} value={kr.value}>{kr.label}</option>
+                                            </template>
+                                        </optgroup>
+                                    </template>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <lightning-combobox class="tgt-object" label="Target Object" options={targetObjectOptions} required></lightning-combobox>
+                    <lightning-input class="tgt-number" label="Target Number" type="number" required></lightning-input>
+                    <lightning-button label="Save Target" variant="brand" class="slds-m-top_medium" onclick={handleCreateTarget}></lightning-button>
+                </div>
+            </div>
+        </div>
+
+    </lightning-card>
+</template>

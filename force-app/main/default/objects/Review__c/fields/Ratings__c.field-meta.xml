@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Ratings__c</fullName>
+    <label>Ratings</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Do Not Move Forward</fullName>
+                <default>false</default>
+                <label>Do Not Move Forward</label>
+            </value>
+            <value>
+                <fullName>Hire</fullName>
+                <default>false</default>
+                <label>Hire</label>
+            </value>
+            <value>
+                <fullName>Strong Hire</fullName>
+                <default>false</default>
+                <label>Strong Hire</label>
+            </value>
+            <value>
+                <fullName>Hire - Some Reservations</fullName>
+                <default>false</default>
+                <label>Hire - Some Reservations</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

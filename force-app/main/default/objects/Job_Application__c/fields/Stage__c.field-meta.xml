@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Stage__c</fullName>
+    <label>Stage</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Not Contacted</fullName>
+                <default>false</default>
+                <label>Not Contacted</label>
+            </value>
+            <value>
+                <fullName>Initial Screening</fullName>
+                <default>false</default>
+                <label>Initial Screening</label>
+            </value>
+            <value>
+                <fullName>Phone Interview</fullName>
+                <default>false</default>
+                <label>Phone Interview</label>
+            </value>
+            <value>
+                <fullName>Skills Assessment</fullName>
+                <default>false</default>
+                <label>Skills Assessment</label>
+            </value>
+            <value>
+                <fullName>Panel Interview</fullName>
+                <default>false</default>
+                <label>Panel Interview</label>
+            </value>
+            <value>
+                <fullName>Offer - Pending</fullName>
+                <default>false</default>
+                <label>Offer - Pending</label>
+            </value>
+            <value>
+                <fullName>Offer - Accepted</fullName>
+                <default>false</default>
+                <label>Offer - Accepted</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>
